@@ -38,7 +38,7 @@ class User:
         self.container.save(self.user_name)
 
     def load(self):
-        pass
+        self.container.load(self.user_name)
 
     def switch(self):
         pass

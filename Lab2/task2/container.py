@@ -3,8 +3,9 @@ import os
 import pickle
 
 USER_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user_files')
-class Container:
 
+
+class Container:
 
     def __init__(self) -> None:
         self.__data = set()
@@ -43,11 +44,21 @@ class Container:
         return founded
 
     def save(self, endpoint: str):
-        directory: str = os.path.join(USER_DATA_DIR, endpoint+".pkl")
+        directory: str = os.path.join(USER_DATA_DIR, endpoint + ".pkl")
 
         with open(directory, 'wb+') as f:
             pickle.dump(self.data, f)
 
+    def load(self, endpoint):
+        directory: str = os.path.join(USER_DATA_DIR, endpoint + ".pkl")
+
+        with open(directory, 'rb') as load_file:
+            try:
+                new_data: set = pickle.load(load_file)
+            except pickle.UnpicklingError:
+                new_data = set()
+
+        self.data = new_data
 
     def switch(self):
         pass
