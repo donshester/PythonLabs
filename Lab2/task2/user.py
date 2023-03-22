@@ -9,7 +9,7 @@ class User:
 
     @property
     def user_name(self):
-        return self.user_name
+        return self._user_name
 
     @property
     def container(self):
@@ -35,7 +35,7 @@ class User:
         print(self.container.list())
 
     def save(self):
-        pass
+        self.container.save(self.user_name)
 
     def load(self):
         pass

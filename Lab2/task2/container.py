@@ -1,7 +1,10 @@
 import re
+import os
+import pickle
 
-
+USER_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user_files')
 class Container:
+
 
     def __init__(self) -> None:
         self.__data = set()
@@ -15,7 +18,7 @@ class Container:
         self.__data = new_set
 
     def add(self, *elems):
-        self.data.add(*elems)
+        self.data.update(*elems)
 
     def remove(self, elem):
         try:
@@ -39,8 +42,12 @@ class Container:
 
         return founded
 
-    def save(self):
-        pass
+    def save(self, endpoint: str):
+        directory: str = os.path.join(USER_DATA_DIR, endpoint+".pkl")
+
+        with open(directory, 'wb+') as f:
+            pickle.dump(self.data, f)
+
 
     def switch(self):
         pass
