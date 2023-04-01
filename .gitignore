@@ -3,3 +3,6 @@ Lab1/venv/
 Lab2/task1/venv
 Lab2/task1/__pycache__
 Lab2/task2/venv
+.idea
+__pycache__
+user_files

@@ -5,7 +5,6 @@ from textStatistics import (
     find_sentences,
     count_declarartive_sentences,
     count_words_size,
-    count_sentence_length,
     top_k_ngramms
 )
 
@@ -79,7 +78,7 @@ class TestTopKNGrams(unittest.TestCase):
 
     def test_many_ngrams(self):
         # The method will find that n-grams that are used beforehand in the text. So in this text there are more than
-        # 1 2-gram that have 2 apperances but there counted 'little lamb' because its first appearance is earlier than
+        # 1 2-gram that have 2 appearances but there counted 'little lamb' because its first appearance is earlier than
         # others 2grams.
 
         text = "Mary had a little lamb, its fleece was white as snow. And everywhere that Mary went, the lamb was " \
