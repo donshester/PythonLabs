@@ -3,15 +3,15 @@ import textStatistics
 text = input('Enter text:')
 N = input('Enter N:')
 K = input('Enter K:')
-
+flag = False
 try: 
-    N= int(N)
+    N = int(N)
     K = int(K)
 except ValueError:
     flag = True 
 
-text= textStatistics.transform_text(text)
-
+text = textStatistics.transform_text(text)
+print(text)
 sentences = textStatistics.find_sentences(text)
 declarative_sentences_length = textStatistics.count_declarartive_sentences(sentences)
 

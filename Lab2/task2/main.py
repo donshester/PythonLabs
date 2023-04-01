@@ -1,11 +1,9 @@
-from user import User
-from container import Container
+from terminal import Terminal
 
 def main():
-    user = User('vlad')
+    terminal = Terminal()
+    terminal.start()
 
-    user.load()
-    user.list_data()
 
 if __name__ == '__main__':
     main()

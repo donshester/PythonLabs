@@ -1,7 +1,8 @@
-import constants 
+import constants
+
 
 def operation_function(num_1, num_2, operation):
-    if operation == constants.ADD :
+    if operation == constants.ADD:
         return num_1 + num_2
 
     elif operation == constants.SUB:
@@ -12,6 +13,6 @@ def operation_function(num_1, num_2, operation):
 
     elif operation == constants.DIV:
         return num_1 / num_2
-    
-    else: 
-        return 'Incorrect operation'    
+
+    else:
+        return 'Incorrect operation'
