@@ -35,3 +35,17 @@ class Input:
 
         return tuple(args)
 
+    @classmethod
+    def get_choice(cls, prompt: str):
+        while True:
+            choice = input(prompt)
+            if choice == "y":
+                return True
+            elif choice == "n":
+                return False
+            else:
+                print("\n")
+
+    @classmethod
+    def validate_username(cls, name: str):
+        return all(c.isalpha() and ord(c) < 128 for c in name)

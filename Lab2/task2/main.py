@@ -1,4 +1,5 @@
-from terminal import Terminal
+from Lab2.task2.entities.terminal import Terminal
+
 
 def main():
     terminal = Terminal()

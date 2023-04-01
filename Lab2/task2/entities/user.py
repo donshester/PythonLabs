@@ -1,6 +1,6 @@
-from container import Container
-
-
+from .container import Container
+from Lab2.task2.helpers.input import Input
+from Lab2.task2.constants.cli_messages import CHANGE_USER_LOAD_QUESTION
 class User:
 
     def __init__(self, name) -> None:
@@ -17,10 +17,10 @@ class User:
 
     @user_name.setter
     def user_name(self, name):
-        self.user_name = name
+        self._user_name = name
 
     def add_elements(self, *elems):
-        self.container.add(elems)
+        self.container.add(*elems)
 
     def remove_element(self, elem):
         self.container.remove(elem)
@@ -29,10 +29,11 @@ class User:
         self.container.find(elem)
 
     def grep_elements(self, regex):
-        self.container.grep(regex)
+        print(self.container.grep(regex))
 
     def list_data(self):
-        print(self.container.list())
+
+        print(f"\t[{', '.join(self.container.list())}]")
 
     def save(self):
         self.container.save(self.user_name)
@@ -40,5 +41,12 @@ class User:
     def load(self):
         self.container.load(self.user_name)
 
-    def switch(self):
-        pass
+    def switch(self, new_user_name: str):
+        choice: bool = Input.get_choice(CHANGE_USER_LOAD_QUESTION)
+        if choice:
+            self._container.load(new_user_name, True)
+        else:
+            self._container.data = set()
+
+        self.user_name = new_user_name
+        print(f"\nYou switched to the user {self.user_name}.")

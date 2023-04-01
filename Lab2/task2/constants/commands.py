@@ -10,3 +10,5 @@ class Command(Enum):
     save = "save"
     load = "load"
     switch = "switch"
+    exit = "exit"
+    help = "help"
