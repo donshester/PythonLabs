@@ -1,4 +1,4 @@
-from Lab2.task2.constants.commands import Command
+from .commands import Command
 
 CLI_HELP = {
     Command.add.value: "add one or more elements to the container ",

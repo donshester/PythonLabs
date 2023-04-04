@@ -1,9 +1,8 @@
 import sys
 from Lab2.task2.entities.user import User
 from Lab2.task2.helpers.input import Input
-from Lab2.task2.constants.cli_messages import ARGUMENT_EXPECTED
-from Lab2.task2.constants.cli_messages import CHANGE_USER_SAVE_QUESTION, EXIT_USER_SAVE_QUESTION
-from Lab2.task2.constants.cli_messages import CLI_HELP
+from Lab2.task2.constants.cli_messages import ARGUMENT_EXPECTED, CHANGE_USER_SAVE_QUESTION, CLI_HELP
+
 
 class Terminal:
 
@@ -19,33 +18,30 @@ class Terminal:
     def start(self):
 
         while True:
-            try:
-                self.__prompt = input(f"[{self.__user.user_name}]: ")
-                comm = Input.cmd_parse(self.__prompt)
-                if comm == "add":
-                    self.add_command()
-                elif comm == "remove":
-                    self.remove_command()
-                elif comm == "find":
-                    self.find_command()
-                elif comm == "list":
-                    self.list_command()
-                elif comm == "grep":
-                    self.grep_command()
-                elif comm == "save":
-                    self.save_command()
-                elif comm == "load":
-                    self.load_command()
-                elif comm == "switch":
-                    self.switch_command()
-                elif comm == "exit":
-                    self.exit_command()
-                elif comm == "help":
-                    self.help_command()
-                else:
-                    print(comm)
-
-
+            self.__prompt = input(f"[{self.__user.user_name}]: ")
+            comm = Input.cmd_parse(self.__prompt)
+            if comm == "add":
+                self.add_command()
+            elif comm == "remove":
+                self.remove_command()
+            elif comm == "find":
+                self.find_command()
+            elif comm == "list":
+                self.list_command()
+            elif comm == "grep":
+                self.grep_command()
+            elif comm == "save":
+                self.save_command()
+            elif comm == "load":
+                self.load_command()
+            elif comm == "switch":
+                self.switch_command()
+            elif comm == "exit":
+                self.exit_command()
+            elif comm == "help":
+                self.help_command()
+            else:
+                print(comm)
 
     def add_command(self):
         args = Input.cmd_parse_args(self.__prompt, False)
@@ -114,5 +110,3 @@ class Terminal:
         for command, help_text in CLI_HELP.items():
             print(f"{command}: {help_text}")
         print('\n')
-
-

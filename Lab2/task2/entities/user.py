@@ -1,6 +1,8 @@
 from .container import Container
 from Lab2.task2.helpers.input import Input
-from Lab2.task2.constants.cli_messages import CHANGE_USER_LOAD_QUESTION
+from Lab2.task2.constants.cli_messages import  CHANGE_USER_LOAD_QUESTION
+
+
 class User:
 
     def __init__(self, name) -> None:

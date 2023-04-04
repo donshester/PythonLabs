@@ -1,11 +1,14 @@
-from Lab2.task2.constants.cli_messages import  CLI_HELP
+from Lab2.task2.constants.cli_messages import CLI_HELP
 
 
 class Input:
 
     @classmethod
     def cmd_parse(cls, text: str):
+
         parsed_command = text.split()[0]
+        if parsed_command == "":
+            return
 
         if parsed_command not in CLI_HELP.keys():
             return f"{parsed_command} is unknown"
