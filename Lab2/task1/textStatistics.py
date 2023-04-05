@@ -54,11 +54,13 @@ def count_sentence_length(words, sentences):
 
 
 def top_k_ngramms(words, K=10, N=4):
-    ngrams = []
+    ngrams = {}
     for i in range(len(words) - N + 1):
         ngram = " ".join(words[i:i + N])
-        ngrams.append(ngram)
+        if ngram not in ngrams:
+            ngrams[ngram] = 1
+        else:
+            ngrams[ngram] += 1
 
-    top_ngrams = Counter(ngrams).most_common(K)
-
+    top_ngrams = sorted(ngrams.items(), key=lambda x: x[1], reverse=True)[:K]
     return top_ngrams, K, N

@@ -12,7 +12,7 @@ class Container:
 
     @property
     def data(self):
-        return self.__data
+         return self.__data
 
     @data.setter
     def data(self, new_set: set):
@@ -24,8 +24,11 @@ class Container:
     def remove(self, elem):
         try:
             self.data.remove(elem)
+
         except KeyError:
-            print("No such key in container!")
+            return False
+
+        return True
 
     def find(self, elem):
         print("Element found!") if elem in self.data else print("Element not found!")
@@ -64,7 +67,7 @@ class Container:
             except pickle.UnpicklingError:
                 new_data = set()
 
-        self.data = new_data
+        self.data.update(new_data)
 
     def switch(self):
         pass

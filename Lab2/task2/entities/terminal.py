@@ -57,7 +57,11 @@ class Terminal:
             print("No arguments to remove!")
             return
         elif len(args) == 1:
-            self.__user.remove_element(args[0])
+            removed: bool = self.__user.remove_element(args[0])
+            if removed:
+                print('Removed')
+            else:
+                print('Element was not found!')
         else:
             print(ARGUMENT_EXPECTED)
 
@@ -83,6 +87,7 @@ class Terminal:
         self.__user.save()
 
     def load_command(self):
+
         self.__user.load()
 
     def switch_command(self):

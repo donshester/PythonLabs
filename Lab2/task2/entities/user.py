@@ -25,7 +25,7 @@ class User:
         self.container.add(*elems)
 
     def remove_element(self, elem):
-        self.container.remove(elem)
+        return self.container.remove(elem)
 
     def find_element(self, elem):
         self.container.find(elem)
@@ -41,6 +41,7 @@ class User:
         self.container.save(self.user_name)
 
     def load(self):
+
         self.container.load(self.user_name)
 
     def switch(self, new_user_name: str):
