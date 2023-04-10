@@ -51,4 +51,6 @@ class Input:
 
     @classmethod
     def validate_username(cls, name: str):
-        return all(c.isalpha() and ord(c) < 128 for c in name)
+        if not name:
+            return False
+        return all((c.isalpha() or c.isdigit()) and ord(c) < 128 for c in name)

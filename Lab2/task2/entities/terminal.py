@@ -20,6 +20,7 @@ class Terminal:
         while True:
             self.__prompt = input(f"[{self.__user.user_name}]: ")
             comm = Input.cmd_parse(self.__prompt)
+
             if comm == "add":
                 self.add_command()
             elif comm == "remove":
