@@ -1,4 +1,15 @@
-import types
+import inspect
+import re
+import frozendict
+
+from Lab3.core.constants import *
+
+
+def get_type(item):
+    item_type = str(type(item))
+
+    return item_type[8:len(item_type) - 2]
+
 
 class Serializer:
     def __init__(self, serialize_format):
@@ -17,66 +28,108 @@ class Serializer:
         pass
 
     def serialize(self, obj):
-        result = {}
-        if isinstance(obj, (int, bool, str, float, complex, type(None))):
-            result = self.serialize_primitive(obj)
-        elif isinstance(obj, (list, set, tuple)):
-            result = self.serialize_collection(obj)
+        if isinstance(obj, (int, float, complex, bool, str, type(None))):
+            return self.serialize_single_var(obj)
+        elif isinstance(obj, (list, tuple, set, bytes)):
+            return self.serialize_collection(obj)
         elif isinstance(obj, dict):
-            result = self.serialize_dict(obj)
-        elif callable(obj):
-            result = self.serialize_function(obj)
-        return result
-
-    def serialize_primitive(self, obj):
-        return {type(obj).__name__: obj}
-
-    def serialize_collection(self, obj):
-        tag = type(obj).__name__
-        children = [self.serialize(item) for item in obj]
-        return {tag: children}
-
-    def serialize_dict(self, obj):
-        tag = type(obj).__name__
-        children = {}
-        for key, value in obj.items():
-            children[key] = self.serialize(value)
-        return {tag: children}
-
-    def serialize_function(self, obj):
-        if obj.__closure__ and "__class__" in obj.__code__.co_freevars:
-            closure = ([self.serialize(c.cell_contents) for c in obj.__closure__])
+            return self.serialize_dict(obj)
+        elif inspect.isfunction(obj):
+            return self.serialize_function(obj)
+        elif inspect.isclass(obj):
+            return self.serialize_class(obj)
+        elif inspect.iscode(obj):
+            return self.serialize_code(obj)
+        elif inspect.ismodule(obj):
+            return self.serialize_module(obj)
+        elif inspect.ismethoddescriptor(obj) or inspect.isbuiltin(obj):
+            return self.serialize_instance(obj)
+        elif inspect.isgetsetdescriptor(obj) or inspect.ismemberdescriptor(obj):
+            return self.serialize_instance(obj)
+        elif isinstance(obj, type(type.__dict__)):
+            return self.serialize_instance(obj)
         else:
-            closure = obj.__closure__
+            return self.serialize_object(obj)
 
-        items = {
-            "argcount": self.serialize(obj.__code__.co_argcount),
-            "posonlyargcount": self.serialize(obj.__code__.co_posonlyargcount),
-            "kwonlyargcount": self.serialize(obj.__code__.co_kwonlyargcount),
-            "nlocals": self.serialize(obj.__code__.co_nlocals),
-            "stacksize": self.serialize(obj.__code__.co_stacksize),
-            "flags": self.serialize(obj.__code__.co_flags),
-            "code": self.serialize(obj.__code__.co_code),
-            "consts": self.serialize(obj.__code__.co_consts),
-            "names": self.serialize(obj.__code__.co_names),
-            "varnames": self.serialize(obj.__code__.co_varnames),
-            "filename": self.serialize(obj.__code__.co_filename),
-            "name": self.serialize(obj.__code__.co_name),
-            "firstlineno": self.serialize(obj.__code__.co_firstlineno),
-            "lnotab": self.serialize(obj.__code__.co_lnotab),
-            "freevars": self.serialize(obj.__code__.co_freevars),
-            "cellvars": self.serialize(obj.__code__.co_cellvars),
-            "globals": {
-                k: self.serialize(v)
-                for k, v in obj.__globals__.items()
-                if isinstance(v, (types.ModuleType, str, int, float, bool))
-            },
-            "closure": self.serialize(obj.__closure__),
-            "qualname": self.serialize(obj.__qualname__)
-        }
-        return {"__type__": "function", "items": items}
+    def serialize_single_var(self, item):
+        serialized_dict = {TYPE: get_type(item), VALUE: item}
 
+        return serialized_dict
+
+    def serialize_collection(self, item):
+        serialized_dict = {TYPE: get_type(item), VALUE: [self.serialize(obj) for obj in item]}
+
+        return serialized_dict
+
+    def serialize_dict(self, item):
+        serialized_dict = {TYPE: get_type(item), VALUE: [[self.serialize(key), self.serialize(item[key])] for key in item]}
+
+        return serialized_dict
+
+    def serialize_function(self, item):
+        members = inspect.getmembers(item)
+        serialized = dict()
+        serialized['type'] = str(type(item))[8:-2]
+        value = dict()
+
+        for tmp in members:
+            if tmp[0] in ['__code__', '__name__', '__defaults__']:
+                value[tmp[0]] = (tmp[1])
+            if tmp[0] == '__code__':
+                co_names = tmp[1].__getattribute__('co_names')
+                globs = item.__getattribute__('__globals__')
+                value['__globals__'] = dict()
+
+                for tmp_co_names in co_names:
+                    if tmp_co_names == item.__name__:
+                        value['__globals__'][tmp_co_names] = item.__name__
+                    elif not inspect.ismodule(tmp_co_names) \
+                            and tmp_co_names in globs:
+                        # and tmp_co_names not in __builtins__:
+                        value['__globals__'][tmp_co_names] = globs[tmp_co_names]
+
+        serialized['value'] = self.serialize(value)
+
+        return serialized
+
+    def serialize_class(self, item):
+        serialized_dict = {TYPE: CLASS}
+        value = {NAME: item.__name__}
+        members = inspect.getmembers(item)
+        for obj in members:
+            if not (obj[0] in NOT_CLASS_ATTRIBUTES):
+                value[obj[0]] = obj[1]
+        serialized_dict[VALUE] = self.serialize(value)
+
+        return serialized_dict
+
+    def serialize_code(self, item):
+        if get_type(item) is None:
+            return None
+
+        members = inspect.getmembers(item)
+        serialized_dict = {TYPE: get_type(item),
+                           VALUE: self.serialize({obj[0]: obj[1] for obj in members if not callable(obj[1])})}
+
+        return serialized_dict
+
+    def serialize_module(self, item):
+        temp_item = str(item)
+        serialized_dict = {TYPE: get_type(item), VALUE: temp_item[9:len(temp_item) - 13]}
+
+        return serialized_dict
+
+    def serialize_instance(self, item):
+        members = inspect.getmembers(item)
+        serialized_dict = {TYPE: get_type(item),
+                           VALUE: self.serialize({obj[0]: obj[1] for obj in members if not callable(obj[1])})}
+
+        return serialized_dict
+
+    def serialize_object(self, item):
+        serialized_dict = {TYPE: OBJECT, VALUE: self.serialize({OBJECT_TYPE: type(item), FIELDS: item.__dict__})}
+
+        return serialized_dict
 
     def deserialize(self, s):
         pass
-
