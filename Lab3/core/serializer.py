@@ -2,7 +2,7 @@ import inspect
 import types
 from pydoc import locate
 
-from Lab3.core.constants import *
+from core.constants import *
 
 
 def get_type(item):
@@ -12,20 +12,6 @@ def get_type(item):
 
 
 class Serializer:
-    def __init__(self, serialize_format):
-        self.format = serialize_format
-
-    def dump(self, obj, fp):
-        pass
-
-    def dumps(self, obj):
-        pass
-
-    def load(self, fp):
-        pass
-
-    def loads(self, s):
-        pass
 
     def serialize(self, obj):
         if isinstance(obj, (int, float, complex, bool, str, type(None))):
@@ -133,7 +119,7 @@ class Serializer:
 
     def deserialize(self, item):
         if item[TYPE] in [INT, FLOAT, BOOL, STRING, COMPLEX, NONE_TYPE]:
-            return self.sedeserialize_single_var(item)
+            return self.deserialize_single_var(item)
         elif item[TYPE] in [LIST, TUPLE, SET, BYTES]:
             return self.deserialize_collection(item)
         elif item[TYPE] == DICT:
