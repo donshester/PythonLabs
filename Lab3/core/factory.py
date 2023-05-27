@@ -1,5 +1,5 @@
-from core.formats.json import JsonSerializer
-from core.formats.xml import XmlSerializer
+from core.formats.json.json import JsonSerializer
+from core.formats.xml.xml import XmlSerializer
 
 
 class Factory:

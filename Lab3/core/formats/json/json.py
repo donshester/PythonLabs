@@ -1,5 +1,5 @@
-from .parsers import parse_json
-from ..serializer import Serializer
+from core.formats.parsers import parse_json
+from core.serializer import Serializer
 
 
 class JsonSerializer:
