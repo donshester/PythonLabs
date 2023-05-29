@@ -7,7 +7,6 @@ from core.constants import *
 
 def get_type(item):
     item_type = str(type(item))
-
     return item_type[8:len(item_type) - 2]
 
 
