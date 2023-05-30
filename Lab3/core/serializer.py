@@ -1,10 +1,12 @@
 import inspect
+import sys
 import types
 from pydoc import locate
 
 from core.constants import *
 
-
+def is_iterable(obj):
+    return hasattr(obj, '__iter__') and hasattr(obj, '__next__') and callable(obj.__iter__)
 def get_type(item):
     item_type = str(type(item))
     return item_type[8:len(item_type) - 2]
@@ -15,7 +17,7 @@ class Serializer:
     def serialize(self, obj):
         if isinstance(obj, (int, float, complex, bool, str, type(None))):
             return self.serialize_single_var(obj)
-        elif isinstance(obj, (list, tuple, set, bytes)):
+        elif isinstance(obj, (list, tuple, set, bytes, bytearray)):
             return self.serialize_collection(obj)
         elif isinstance(obj, dict):
             return self.serialize_dict(obj)
@@ -33,6 +35,8 @@ class Serializer:
             return self.serialize_instance(obj)
         elif isinstance(obj, type(type.__dict__)):
             return self.serialize_instance(obj)
+        elif is_iterable(obj):
+            return self.serialize_iterable(obj)
         else:
             return self.serialize_object(obj)
 
@@ -41,13 +45,19 @@ class Serializer:
 
         return serialized_dict
 
+    def serialize_iterable(self, obj):
+        # Convert the iterable object to a list for serialization
+        serialized_items = [self.serialize(item) for item in obj]
+        return {'type': ITERATOR, 'value': serialized_items}
+
     def serialize_collection(self, item):
         serialized_dict = {TYPE: get_type(item), VALUE: [self.serialize(obj) for obj in item]}
 
         return serialized_dict
 
     def serialize_dict(self, item):
-        serialized_dict = {TYPE: get_type(item), VALUE: [[self.serialize(key), self.serialize(item[key])] for key in item]}
+        serialized_dict = {TYPE: get_type(item),
+                           VALUE: [[self.serialize(key), self.serialize(item[key])] for key in item]}
 
         return serialized_dict
 
@@ -55,35 +65,41 @@ class Serializer:
         members = inspect.getmembers(item)
         serialized = dict()
         serialized['type'] = str(type(item))[8:-2]
-        value = dict()
+        value = {}
 
-        for tmp in members:
-            if tmp[0] in ['__code__', '__name__', '__defaults__']:
-                value[tmp[0]] = (tmp[1])
-            if tmp[0] == '__code__':
-                co_names = tmp[1].__getattribute__('co_names')
-                globs = item.__getattribute__('__globals__')
-                value['__globals__'] = dict()
+        for name, val in members:
+            if name in ["__code__", "__name__", "__defaults__", "__closure__"]:
+                value[name] = val
+            if name == "__code__":
+                co_names = val.co_names
+                globs = item.__globals__
+                value["__globals__"] = {}
 
-                for tmp_co_names in co_names:
-                    if tmp_co_names == item.__name__:
-                        value['__globals__'][tmp_co_names] = item.__name__
-                    elif not inspect.ismodule(tmp_co_names) \
-                            and tmp_co_names in globs:
-                        # and tmp_co_names not in __builtins__:
-                        value['__globals__'][tmp_co_names] = globs[tmp_co_names]
+                for co_name in co_names:
+                    if co_name == item.__name__:
+                        value["__globals__"][co_name] = item.__name__
+                    elif not inspect.ismodule(co_name) and co_name in globs:
+                        value["__globals__"][co_name] = globs[co_name]
 
-        serialized['value'] = self.serialize(value)
+            if name == "__closure__":
+                closure = val
+                if closure:
+                    closure_values = [cell.cell_contents for cell in closure]
+                    value["__closure__"] = closure_values
 
+        serialized["value"] = self.serialize(value)
         return serialized
 
     def serialize_class(self, item):
         serialized_dict = {TYPE: CLASS}
-        value = {NAME: item.__name__}
+        value = {
+            NAME: item.__module__ + '.' + item.__name__,
+            MRO: [base.__module__ + '.' + base.__qualname__ for base in item.__bases__],
+        }
         members = inspect.getmembers(item)
         for obj in members:
-            if not (obj[0] in NOT_CLASS_ATTRIBUTES):
-                value[obj[0]] = obj[1]
+            if obj[0] not in NOT_CLASS_ATTRIBUTES:
+                value[obj[0]] = self.serialize(obj[1])
         serialized_dict[VALUE] = self.serialize(value)
 
         return serialized_dict
@@ -119,7 +135,7 @@ class Serializer:
     def deserialize(self, item):
         if item[TYPE] in [INT, FLOAT, BOOL, STRING, COMPLEX, NONE_TYPE]:
             return self.deserialize_single_var(item)
-        elif item[TYPE] in [LIST, TUPLE, SET, BYTES]:
+        elif item[TYPE] in [LIST, TUPLE, SET, BYTES, BYTE_ARRAY]:
             return self.deserialize_collection(item)
         elif item[TYPE] == DICT:
             return self.deserialize_dict(item)
@@ -131,6 +147,8 @@ class Serializer:
             return self.deserialize_module(item)
         elif item[TYPE] == OBJECT:
             return self.deserialize_object(item)
+        elif item[TYPE] == ITERATOR:
+            return self.deserialize_iterable(item)
 
     def deserialize_single_var(self, item):
         if item[TYPE] == NONE_TYPE:
@@ -139,6 +157,10 @@ class Serializer:
             return item[VALUE] == TRUE
         else:
             return locate(item[TYPE])(item[VALUE])
+
+    def deserialize_iterable(self, item):
+        serialized_items = item['value']
+        return iter(self.deserialize(item) for item in serialized_items)
 
     def deserialize_collection(self, item):
         if item[TYPE] == LIST:
@@ -149,12 +171,22 @@ class Serializer:
             return set(self.deserialize(obj) for obj in item[VALUE])
         elif item[TYPE] == BYTES:
             return bytes(self.deserialize(obj) for obj in item[VALUE])
+        elif item[TYPE] == BYTE_ARRAY:
+            return bytearray(self.deserialize(obj) for obj in item[VALUE])
 
     def deserialize_dict(self, item):
         return {self.deserialize(obj[0]): self.deserialize(obj[1]) for obj in item[VALUE]}
 
     def deserialize_function(self, item):
         res_dict = self.deserialize(item['value'])
+        closures = res_dict.get('__closure__')
+        if closures is not None:
+            closure_cells = []
+            for cell_value in closures:
+                cell = types.CellType(cell_value)
+                closure_cells.append(cell)
+            res_dict['closure'] = tuple(closure_cells)
+        res_dict.pop('__closure__')
 
         res_dict['code'] = self.deserialize_code(item)
         res_dict.pop('__code__')
@@ -197,18 +229,53 @@ class Serializer:
     def deserialize_class(self, item):
         class_dict = self.deserialize(item[VALUE])
         name = class_dict[NAME]
+        mro_names = class_dict[MRO]
         del class_dict[NAME]
+        del class_dict[MRO]
 
-        return type(name, (object,), class_dict)
+        mro = []
+        for base_name in mro_names:
+            module, _, cls_name = base_name.rpartition('.')
+            base_cls = getattr(sys.modules[module], cls_name)
+            mro.append(base_cls)
 
+        cls = type(name, tuple(mro), class_dict)
+
+        return cls
     def deserialize_module(self, item):
         return __import__(item[VALUE])
 
-    def deserialize_object(self, item):
-        value = self.deserialize(item[VALUE])
-        result = value[OBJECT_TYPE](**value[FIELDS])
+    # def deserialize_object(self, item):
+    #     value = self.deserialize(item[VALUE])
+    #
+    #     if OBJECT_TYPE not in value or FIELDS not in value:
+    #         raise ValueError("Invalid object serialization format")
+    #
+    #     object_type = value[OBJECT_TYPE]
+    #     fields = value[FIELDS]
+    #
+    #     if object_type is None or not callable(object_type):
+    #         raise ValueError("Invalid object type")
+    #
+    #     result = object_type.__new__(object_type)
+    #
+    #     for key, value in fields.items():
+    #         setattr(result, key, self.deserialize(value))
+    #
+    #     return result
 
-        for key, value in value[FIELDS].items():
-            result.key = value
+    def deserialize_object(self, obj):
+        if TYPE not in obj or VALUE not in obj:
+            raise ValueError("Invalid object serialization format")
 
-        return result
+        serialized_data = self.deserialize(obj[VALUE])
+
+        if OBJECT_TYPE not in serialized_data or FIELDS not in serialized_data:
+            raise ValueError("Invalid serialized object format")
+
+        object_type = serialized_data[OBJECT_TYPE]
+        fields = serialized_data[FIELDS]
+        unpacked = object.__new__(object_type)
+        unpacked.__dict__.update({key: self.deserialize(value) for key, value in fields.items()})
+
+        return unpacked

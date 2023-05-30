@@ -12,6 +12,7 @@ LIST = "list"
 TUPLE = "tuple"
 SET = "set"
 BYTES = "bytes"
+BYTE_ARRAY = "bytearray"
 
 DICT = "dict"
 
@@ -28,7 +29,8 @@ MODULE = "module"
 GLOBALS = "__globals__"
 CODE = "__code__"
 NAME = "__name__"
-
+MRO = "__mro__"
+ITERATOR = "iterator"
 BUILTINS = "__builtins__"
 DOC = "__doc__"
 DEFAULTS = "__defaults__"
@@ -63,5 +65,8 @@ CODE_ARGS = [
     'co_firstlineno',
     'co_linetable',
     'co_freevars',
-    'co_cellvars'
+    'co_cellvars',
+    "co_lnotab",
+    "co_exceptiontable",
 ]
+
