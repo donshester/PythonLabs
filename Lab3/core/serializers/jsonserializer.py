@@ -1,8 +1,11 @@
 import re
 from typing import Iterator
 
-from helpers.constants import JSON, BOOL_TYPE, TYPE_MAPPING, JSON_TYPE, PRIMITIVE_TYPES
-from helpers.functions import get_items, get_key, to_number, create_object, type_from_str
+from core.helpers.functions import get_items, create_object, type_from_str, to_number, get_key
+from core.helpers.constants import BOOL_TYPE, JSON, TYPE_MAPPING, JSON_TYPE, PRIMITIVE_TYPES
+
+JSON_TYPE, \
+    PRIMITIVE_TYPES
 
 
 class JSONSerializer:

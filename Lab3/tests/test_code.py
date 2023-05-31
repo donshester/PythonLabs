@@ -117,6 +117,17 @@ class Human:
 a = 5
 
 
+class Brrr:
+    @classmethod
+    def class_meth(cls):
+        return 55
+
+
+class Clas(Brrr):
+    def __init__(self):
+        print(2)
+
+
 def func1():
     global a
     a *= 2

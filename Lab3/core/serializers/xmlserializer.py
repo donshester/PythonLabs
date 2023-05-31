@@ -1,8 +1,8 @@
 import re
 from typing import Iterator
 
-from helpers.constants import PRIMITIVE_TYPES, TYPE_MAPPING, XML, XML_ITEM, XML_PRIMITIVE, XML_TYPE
-from helpers.functions import get_items, get_key, type_from_str, create_object
+from core.helpers.constants import PRIMITIVE_TYPES, TYPE_MAPPING, XML, XML_ITEM, XML_PRIMITIVE, XML_TYPE
+from core.helpers.functions import get_items, get_key, type_from_str, create_object
 
 
 class XMLSerializer:

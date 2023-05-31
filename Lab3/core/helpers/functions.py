@@ -6,8 +6,7 @@ from types import FunctionType, MethodType, CodeType, ModuleType, \
     BuiltinMethodType, BuiltinFunctionType, CellType, GeneratorType
 from typing import Any, Collection, Iterable
 
-from helpers.constants import IGNORED_FIELDS, IGNORED_FIELD_TYPES, TYPE_MAPPING,\
-    TYPE, ITERATOR_TYPE, VALUE
+from core.helpers.constants import IGNORED_FIELD_TYPES, IGNORED_FIELDS, TYPE_MAPPING
 
 
 def get_items(obj) -> dict[str, Any]:
@@ -17,7 +16,12 @@ def get_items(obj) -> dict[str, Any]:
     if isinstance(obj, dict):
         return obj
 
-    elif isinstance(obj, Collection):
+
+    elif isinstance(obj, (Collection, bytearray)):
+
+        if isinstance(obj, bytearray):
+            obj = bytes(obj)
+
         return dict(enumerate(obj))
 
     elif isinstance(obj, CodeType):
@@ -50,7 +54,7 @@ def get_items(obj) -> dict[str, Any]:
         a = []
         for i in obj:
             a.append(i)
-        return{
+        return {
             "values": a
         }
 
@@ -220,6 +224,8 @@ def create_object(obj_type: type, obj_data):
     # elif issubclass(obj_type, type(iter)):
     #     return iter(create_object(obj_type, item) for item in obj_data[VALUE])
 
+    elif issubclass(obj_type, bytearray):
+        return bytearray(obj_data)
     else:
         obj = object.__new__(obj_data.get('class'))
         obj.__dict__ = obj_data.get('attrs')
