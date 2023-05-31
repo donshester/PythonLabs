@@ -6,3 +6,7 @@ Lab2/task2/venv
 .idea
 __pycache__
 user_files
+Lab3/dist/
+Lab3/build/
+Lab3/custom_json_serializer_1234.egg-info/
+Lab3/venv/
