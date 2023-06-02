@@ -218,12 +218,6 @@ def create_object(obj_type: type, obj_data):
     elif issubclass(obj_type, ModuleType):
         return __import__(obj_data.get('name'))
 
-    # if obj_data[TYPE] == ITERATOR_TYPE:
-    #     return iter(create_object(obj_type, item) for item in obj_data[VALUE])
-
-    # elif issubclass(obj_type, type(iter)):
-    #     return iter(create_object(obj_type, item) for item in obj_data[VALUE])
-
     elif issubclass(obj_type, bytearray):
         return bytearray(obj_data)
     else:

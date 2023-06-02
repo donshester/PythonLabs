@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="custom-json-serializer-1234",
-    version="1.3",
+    version="1.6",
     description="serialization/deserialization package",
     url="https://github.com/donshester/PythonLabs/tree/lab3",
     author="Me",

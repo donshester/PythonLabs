@@ -1,16 +1,14 @@
-from types import LambdaType, FunctionType, MethodType, CodeType,\
+from types import LambdaType, FunctionType, MethodType, CodeType, \
     ModuleType, CellType, GeneratorType
-from typing import Final
 
-JSON_TYPE: str = r"<class '(\w\S+)'>_"
+JSON_TYPE = r"<class '(\w\S+)'>_"
 JSON = ('''{{
     "{type}_{id:x}": {{
     {items}
     }}
 }}''')
 
-
-XML_TYPE: str = r'type="(\w+)"'
+XML_TYPE = r'type="(\w+)"'
 XML = ('''
 <object type="{type}" id="{id:x}">
 {items}
@@ -28,13 +26,13 @@ XML_ITEM = ('''
 ''')
 XML_PRIMITIVE = '<primitive type="{type}">{obj}</primitive>'
 
-PRIMITIVE_TYPES: tuple = (int, float, complex, str, bool, type(None))
+PRIMITIVE_TYPES = (int, float, complex, str, bool, type(None))
 
-BOOL_TYPE: dict[bool, str] = {
-        None: 'none',
-        True: 'true',
-        False: 'false'
-    }
+BOOL_TYPE = {
+    None: 'none',
+    True: 'true',
+    False: 'false'
+}
 
 TYPE_MAPPING = {
     'int': int,
@@ -62,20 +60,19 @@ TYPE_MAPPING = {
     'generator': GeneratorType
 }
 
-IGNORED_FIELDS: set[str] = {
-        '__weakref__',
-        '__subclasshook__',
-        '__dict__',
-        '__doc__'
+IGNORED_FIELDS = {
+    '__weakref__',
+    '__subclasshook__',
+    '__dict__',
+    '__doc__'
 }
-IGNORED_FIELD_TYPES: set[str] = {
+IGNORED_FIELD_TYPES = {
     'BuiltinFunctionType', 'BuiltinMethodType',
     'WrapperDescriptorType', 'MethodDescriptorType',
     'MappingProxyType', 'GetSetDescriptorType',
     'MemberDescriptorType'
 }
 
-TYPE: Final[str] = "type"
-ITERATOR_TYPE: Final[str] = "iterator"
-VALUE: Final[str] = "value"
-
+TYPE = "type"
+ITERATOR_TYPE = "iterator"
+VALUE = "value"

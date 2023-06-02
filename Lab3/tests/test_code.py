@@ -125,8 +125,7 @@ class Brrr:
 
 class Clas(Brrr):
     def __init__(self):
-        print(2)
-
+        x = 1
 
 def func1():
     global a
