@@ -1,32 +1,61 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from .models import Product
+from .forms import ProductForm
 
 
-class ProductListView(ListView):
-    model = Product
-    template_name = 'product_list.html'
-    context_object_name = 'products'
-    paginate_by = 10
+class StaffRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
 
 
-class ProductCreateView(PermissionRequiredMixin, CreateView):
-    model = Product
-    template_name = 'product_create.html'
-    fields = '__all__'
-    permission_required = 'app.add_product'
+class ProductList(View):
+    def get(self, request):
+        products = Product.objects.all()
+        return render(request, 'products/product_list.html', {'products': products})
 
 
-class ProductUpdateView(PermissionRequiredMixin, UpdateView):
-    model = Product
-    template_name = 'product_update.html'
-    fields = '__all__'
-    permission_required = 'app.change_product'
+class ProductCreate(StaffRequiredMixin, View):
+    def get(self, request):
+        form = ProductForm()
+        return render(request, 'products/product_create.html', {'form': form})
+
+    def post(self, request):
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+        return render(request, 'products/product_create.html', {'form': form})
 
 
-class ProductDeleteView(PermissionRequiredMixin, DeleteView):
-    model = Product
-    template_name = 'product_delete.html'
-    success_url = reverse_lazy('product-list')
-    permission_required = 'app.delete_product'
+class ProductDetail(View):
+    def get(self, request, id):
+        product = get_object_or_404(Product, id=id)
+        return render(request, 'products/product_detail.html', {'product': product})
+
+
+class ProductEdit(StaffRequiredMixin, View):
+    def get(self, request, id):
+        product = get_object_or_404(Product, id=id)
+        form = ProductForm(instance=product)
+        return render(request, 'products/product_edit.html', {'product': product, 'form': form})
+
+    def post(self, request, id):
+        product = get_object_or_404(Product, id=id)
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+        return render(request, 'products/product_edit.html', {'product': product, 'form': form})
+
+
+class ProductDelete(StaffRequiredMixin, View):
+    def get(self, request, id):
+        product = get_object_or_404(Product, id=id)
+        return render(request, 'products/product_delete.html', {'product': product})
+
+    def post(self, request, id):
+        product = get_object_or_404(Product, id=id)
+        product.delete()
+        return redirect('product_list')

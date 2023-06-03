@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h1>Product Detail</h1>
+  <p>Name: {{ product.name }}</p>
+  <p>Price: {{ product.price }}</p>
+  <p>Unit: {{ product.unit }}</p>
+  <p>Manufacturer: {{ product.manufacturer }}</p>
+  <p>Category: {{ product.category }}</p>
+  <p>Quantity: {{ product.quantity }}</p>
+{% if user.is_authenticated and user.is_staff %}
+<a href="{% url 'product_edit' product.id %}">Edit</a>
+<a href="{% url 'product_delete' product.id %}">Delete</a>
+{% endif %}
+{% endblock %}
