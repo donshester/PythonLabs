@@ -7,4 +7,10 @@
     {{ form.as_p }}
     <button type="submit">Create</button>
   </form>
+
+  {% if joke %}
+  <hr>
+  <h2>Joke of the Day</h2>
+  <p>{{ joke }}</p>
+  {% endif %}
 {% endblock %}

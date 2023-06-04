@@ -1,3 +1,6 @@
+from datetime import datetime, date
+
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -29,6 +32,16 @@ class Customer(AbstractUser):
         help_text='Specific permissions for this user.',
         verbose_name='user permissions',
     )
+
+    def get_age(self):
+        current_date = date.today()
+        age = current_date.year - self.date_of_birth.year
+        if (
+            current_date.month < self.date_of_birth.month
+            or (current_date.month == self.date_of_birth.month and current_date.day < self.date_of_birth.day)
+        ):
+            age -= 1
+        return age
 
     def __str__(self):
         return self.username

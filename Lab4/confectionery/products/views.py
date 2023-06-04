@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Product, Manufacturer, Category
 from .forms import ProductForm
+import requests
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -54,14 +55,23 @@ class ProductList(View):
 class ProductCreate(StaffRequiredMixin, View):
     def get(self, request):
         form = ProductForm()
-        return render(request, 'products/product_create.html', {'form': form})
-
+        joke = self.get_joke()
+        return render(request, 'products/product_create.html', {'form': form, 'joke': joke})
     def post(self, request):
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('product_list')
         return render(request, 'products/product_create.html', {'form': form})
+
+    def get_joke(self):
+        response = requests.get('https://v2.jokeapi.dev/joke/Programming?type=single')
+        if response.status_code == 200:
+            data = response.json()
+            joke = data['joke']
+            return joke
+        else:
+            return None
 
 
 class ProductDetail(View):

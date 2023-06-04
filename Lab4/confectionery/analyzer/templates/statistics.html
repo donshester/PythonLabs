@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Statistics</title>
+</head>
+<body>
+  <h1>Top Customers by Total Purchase Amount</h1>
+  <table>
+    <tr>
+      <th>Customer</th>
+      <th>Total Purchase Amount</th>
+    </tr>
+    {% for customer in customers %}
+    <tr>
+      <td>{{ customer.username }}</td>
+      <td>{{ customer.total_purchases }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Sales Statistics</h2>
+  <p>Average Sales: {{ average_sales }}</p>
+  <p>Sales Mode: {{ sales_mode }}</p>
+  <p>Sales Median: {{ sales_median }}</p>
+
+  <h2>Product Statistics</h2>
+  <p>Most Popular Product Type: {{ popular_product_type }}</p>
+  <p>Profitable Product Type: {{ profitable_product_type }}</p>
+
+
+  <h2>Age Statistics</h2>
+  <p>Average Age: {{ average_age }}</p>
+  <p>Median Age: {{ median_age }}</p>
+  <form method="get" action="{% url 'order_count_graph' %}">
+      <button type="submit">Show Graphical Statistics</button>
+  </form>
+</body>
+</html>
