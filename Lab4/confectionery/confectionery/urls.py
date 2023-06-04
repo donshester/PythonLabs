@@ -17,13 +17,13 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
 from customers.views import CreateUser, LogoutView, LoginView
 from products.views import ProductDelete, ProductDetail, ProductCreate, ProductList, ProductEdit
-from orders.views import CreateOrderView, OrderDetailView
-
+from orders.views import CreateOrderView, OrderDetailView, LatestOrdersView, UpdateOrderItemPriceView, MyOrdersView
 from analyzer.views import statistics_view, order_count_graph_view
 
-from django.conf import settings
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,4 +40,7 @@ urlpatterns = [
     path('order/<int:order_id>/', OrderDetailView.as_view(), name='order_detail'),
     path('statistics/', statistics_view, name='statistics'),
     path('order-count-graph/', order_count_graph_view, name='order_count_graph'),
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('orders/latest/', LatestOrdersView.as_view(), name='latest_orders'),
+    path('order-items/<int:order_item_id>/update-price/', UpdateOrderItemPriceView.as_view(),name='update_order_item_price'),
+    path('my-orders/', MyOrdersView.as_view(), name='my_orders'),
+              ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

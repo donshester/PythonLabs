@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Latest Orders</title>
+</head>
+<body>
+  <h1>Latest Orders</h1>
+  <table>
+    <tr>
+      <th>Order ID</th>
+      <th>Customer</th>
+      <th>Order Date</th>
+      <th>Price</th>
+    </tr>
+    {% for order in latest_orders %}
+    <tr>
+      <td><a href="{% url 'order_detail' order.id %}">{{ order.id }}</a></td>
+      <td>{{ order.customer }}</td>
+      <td>{{ order.sale_date }}</td>
+      <td>{{ order.total_price }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

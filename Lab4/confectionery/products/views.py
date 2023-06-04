@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -52,11 +53,14 @@ class ProductList(View):
         })
 
 
-class ProductCreate(StaffRequiredMixin, View):
+class ProductCreate(UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_superuser
     def get(self, request):
         form = ProductForm()
         joke = self.get_joke()
         return render(request, 'products/product_create.html', {'form': form, 'joke': joke})
+
     def post(self, request):
         form = ProductForm(request.POST)
         if form.is_valid():

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Orders</title>
+</head>
+<body>
+  <h1>My Orders</h1>
+  <ul>
+    {% for order in orders %}
+    <li>
+      <a href="{% url 'order_detail' order.id %}">Order #: {{ order.pk }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

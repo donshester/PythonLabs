@@ -9,7 +9,7 @@
   <p>Manufacturer: {{ product.manufacturer }}</p>
   <p>Category: {{ product.category }}</p>
  <p>Availability: {% if product.is_available %}Available{% else %}Not Available{% endif %}</p>
-{% if product.is_available and user.is_authenticated %}
+{% if product.is_available and user.is_authenticated and not user.is_superuser %}
     <a href="{% url 'create_order' %}?product_id={{ product.id }}">Order</a>
   {% endif %}
 {% if user.is_authenticated and user.is_staff %}
