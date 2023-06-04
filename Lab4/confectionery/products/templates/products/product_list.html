@@ -2,6 +2,36 @@
 
 {% block content %}
   <h1>Product List</h1>
+
+  <form method="get" action="{% url 'product_list' %}">
+    <label for="manufacturer">Manufacturer:</label>
+    <select name="manufacturer" id="manufacturer">
+      <option value="">All</option>
+      {% for manufacturer in manufacturers %}
+        <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="category">Category:</label>
+    <select name="category" id="category">
+      <option value="">All</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="min_price">Min Price:</label>
+    <input type="number" name="min_price" id="min_price" step="0.01">
+
+    <label for="max_price">Max Price:</label>
+    <input type="number" name="max_price" id="max_price" step="0.01">
+
+    <label for="search">Search:</label>
+    <input type="text" name="search" id="search">
+
+    <button type="submit">Filter</button>
+  </form>
+
   <ul>
     {% for product in products %}
       <li><a href="{% url 'product_detail' product.id %}">{{ product.name }} - {{ product.price }}</a></li>

@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'customers.apps.CustomersConfig',
     'products.apps.ProductsConfig',
     'orders.apps.OrdersConfig',
-
 ]
 
 MIDDLEWARE = [
@@ -66,6 +65,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'builtins': [
+                'django.template.defaultfilters',
             ],
         },
     },

@@ -17,6 +17,11 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    price = models.IntegerField()
+
+    def save(self, *args, **kwargs):
+        self.price = self.product.price * self.quantity
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Order #{self.order.pk} - Product: {self.product.name} - Quantity: {self.quantity}"

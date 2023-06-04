@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .models import Product
+from .models import Product, Manufacturer, Category
 from .forms import ProductForm
 
 
@@ -13,7 +13,42 @@ class StaffRequiredMixin(UserPassesTestMixin):
 class ProductList(View):
     def get(self, request):
         products = Product.objects.all()
-        return render(request, 'products/product_list.html', {'products': products})
+        manufacturers = Manufacturer.objects.all()
+        categories = Category.objects.all()
+
+        manufacturer_id = request.GET.get('manufacturer')
+        category_id = request.GET.get('category')
+        min_price = request.GET.get('min_price')
+        max_price = request.GET.get('max_price')
+        search_query = request.GET.get('search')
+
+        if manufacturer_id:
+            products = products.filter(manufacturer_id=manufacturer_id)
+
+        if category_id:
+            products = products.filter(category_id=category_id)
+
+        if min_price:
+            products = products.filter(price__gte=min_price)
+
+        if max_price:
+            products = products.filter(price__lte=max_price)
+
+        if search_query:
+            products = products.filter(
+                name__icontains=search_query
+            )
+
+        return render(request, 'products/product_list.html', {
+            'products': products,
+            'manufacturers': manufacturers,
+            'categories': categories,
+            'selected_manufacturer': int(manufacturer_id) if manufacturer_id else None,
+            'selected_category': int(category_id) if category_id else None,
+            'selected_min_price': float(min_price) if min_price else None,
+            'selected_max_price': float(max_price) if max_price else None,
+            'selected_search_query': search_query,
+        })
 
 
 class ProductCreate(StaffRequiredMixin, View):

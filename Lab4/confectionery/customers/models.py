@@ -1,7 +1,5 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
@@ -18,14 +16,14 @@ class Customer(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     groups = models.ManyToManyField(
-        'auth.Group',
+        Group,
         related_name='customer_groups',
         blank=True,
         help_text='The groups this user belongs to.',
         verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
-        'auth.Permission',
+        Permission,
         related_name='customer_user_permissions',
         blank=True,
         help_text='Specific permissions for this user.',
@@ -34,3 +32,16 @@ class Customer(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+def setup_groups():
+    staff_group, _ = Group.objects.get_or_create(name='Staff')
+    customer_group, _ = Group.objects.get_or_create(name='Customer')
+    content_type = ContentType.objects.get(app_label='products', model='product')
+    permissions = Permission.objects.filter(content_type=content_type,
+                                            codename__in=['change_product', 'delete_product'])
+    staff_group.permissions.set(permissions)
+    staff_group.save()
+    customer_group.save()
+
+
