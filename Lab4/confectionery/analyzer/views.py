@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum, Count
 from django.db.models.functions import Coalesce
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 import matplotlib.pyplot as plt
 import numpy as np
@@ -60,7 +61,8 @@ def order_count_graph_view(request):
 
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)
-
+        if end_date <= start_date:
+            return HttpResponseBadRequest("Invalid date range")
         dates = []
         counts = []
         current_date = start_date

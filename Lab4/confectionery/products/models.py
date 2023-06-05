@@ -47,10 +47,5 @@ class Product(models.Model):
     def is_available(self):
         return self.quantity > 0
 
-    class Meta:
-        permissions = [
-            ('view_quantity', 'Can view quantity'),
-        ]
-
     def __str__(self):
         return self.name

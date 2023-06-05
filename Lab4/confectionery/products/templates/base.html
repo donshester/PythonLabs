@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <title>My Confectionery</title>
-  <!-- Вставьте здесь ваши стили CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -14,14 +13,14 @@
       {% if user.is_authenticated and user.is_superuser %}
         <li><a href="{% url 'product_create' %}">Create Product</a></li>
       {% endif %}
-      {% if user.is_authenticated %}
-      <li><a href="{% url 'statistics' %}">View Statistics</a></li>
-      {% endif %}
       {% if user.is_authenticated and user.is_staff %}
-        <li><a href="{% url 'latest_orders' %}">Latest Orders</a></li>
+      <li><a href="{% url 'statistics' %}">View Statistics</a></li>
+      <li><a href="{% url 'latest_orders' %}">Latest Orders</a></li>
       {% endif %}
       {% if user.is_authenticated %}
+        {% if not user.is_superuser  %}
         <li><a href="{% url 'my_orders' %}">My Orders</a></li>
+        {% endif %}
         <li><a href="{% url 'logout' %}">Logout</a></li>
       {% else %}
         <li><a href="{% url 'register' %}">Register</a></li>

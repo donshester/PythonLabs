@@ -8,12 +8,19 @@
   <p>Unit: {{ product.unit }}</p>
   <p>Manufacturer: {{ product.manufacturer }}</p>
   <p>Category: {{ product.category }}</p>
- <p>Availability: {% if product.is_available %}Available{% else %}Not Available{% endif %}</p>
-{% if product.is_available and user.is_authenticated and not user.is_superuser %}
+  <p>Availability: {% if product.is_available %}Available{% else %}Not Available{% endif %}</p>
+
+  {% if user.is_authenticated and user.is_staff %}
+    <p>Quantity: {{ product.quantity }}</p>
+  {% endif %}
+
+  {% if product.is_available and user.is_authenticated and not user.is_superuser %}
     <a href="{% url 'create_order' %}?product_id={{ product.id }}">Order</a>
   {% endif %}
-{% if user.is_authenticated and user.is_staff %}
-<a href="{% url 'product_edit' product.id %}">Edit</a>
-<a href="{% url 'product_delete' product.id %}">Delete</a>
-{% endif %}
+
+  {% if user.is_authenticated and user.is_staff %}
+    <a href="{% url 'product_edit' product.id %}">Edit</a>
+    <a href="{% url 'product_delete' product.id %}">Delete</a>
+  {% endif %}
+
 {% endblock %}

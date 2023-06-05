@@ -1,6 +1,4 @@
-from datetime import datetime, date
-
-from dateutil.relativedelta import relativedelta
+from datetime import date
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -9,7 +7,6 @@ from django.db import models
 class Customer(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
-
     first_name = models.CharField(max_length=100)
     second_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20)
