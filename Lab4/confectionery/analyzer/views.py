@@ -1,5 +1,5 @@
 import pprint
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from statistics import mode, median, mean
 
 from django.conf import settings
@@ -39,7 +39,7 @@ def statistics_view(request):
     profitable_product_type = Product.objects.values('category__name').annotate(
         total_revenue=Coalesce(Sum('order__orderitem__price'), 0)
     ).order_by('-total_revenue').first()
-
+    today = date.today()
     return render(request, 'statistics.html', {
         'customers': customers,
         'average_sales': average_sales,
@@ -49,6 +49,7 @@ def statistics_view(request):
         'median_age': median_age,
         'popular_product_type': popular_product_type['category__name'],
         'profitable_product_type': profitable_product_type['category__name'],
+        'today': today,
     })
 
 
@@ -59,10 +60,17 @@ def order_count_graph_view(request):
         start_date_str = request.POST.get('start_date')
         end_date_str = request.POST.get('end_date')
 
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)
-        if end_date <= start_date:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)
+        except ValueError:
+            return HttpResponseBadRequest("Invalid date format")
+        today = datetime.today()
+        current_year = today.year
+
+        if end_date <= start_date or start_date.year < current_year or end_date > today:
             return HttpResponseBadRequest("Invalid date range")
+
         dates = []
         counts = []
         current_date = start_date

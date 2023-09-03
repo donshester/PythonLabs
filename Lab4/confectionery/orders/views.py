@@ -10,7 +10,7 @@ from django.views import View
 from django.utils.timezone import now
 
 from .models import Order, OrderItem
-from .forms import OrderForm, OrderItemForm
+from .forms import OrderItemForm
 from customers.models import Customer
 
 from products.models import Product
@@ -19,50 +19,36 @@ from products.models import Product
 class CreateOrderView(View):
     def get(self, request):
         OrderItemFormSet = formset_factory(OrderItemForm, extra=0)
-        form = OrderForm(initial={'sale_date':  datetime.now().date()})
         formset = OrderItemFormSet(prefix='orderitem')
         product_id = request.GET.get('product_id')
         if product_id:
             product = get_object_or_404(Product, id=product_id)
             formset.initial = [{'product': product}]
 
-        return render(request, 'create_order.html', {'form': form, 'formset': formset})
+        return render(request, 'create_order.html', {'formset': formset})
 
     def post(self, request):
-        OrderItemFormSet = formset_factory(OrderItemForm, extra=1)
-        form = OrderForm(request.POST)
+        OrderItemFormSet = formset_factory(OrderItemForm, extra=0)
         formset = OrderItemFormSet(request.POST, prefix='orderitem')
 
-        if form.is_valid() and formset.is_valid():
-            order = form.save(commit=False)
-            delivery_date = form.cleaned_data.get('delivery_date')
-            current_date = datetime.now().date()
-            sale_date = current_date
-            if delivery_date < current_date:
-                form.add_error('delivery_date', "Delivery date must be in the future.")
-                return render(request, 'create_order.html', {'form': form, 'formset': formset})
-
-            order.sale_date = sale_date
-            order.delivery_date = delivery_date
-            order.customer = get_object_or_404(Customer, username=request.user)
-            order.save()
-
+        if formset.is_valid():
+            cart = request.session.get('cart', {})
             for form in formset:
-                item = form.save(commit=False)
-                item.order = order
-                item.price = item.quantity * item.product.price
-                item.save()
+                product = form.cleaned_data.get('product')
+                quantity = form.cleaned_data.get('quantity')
+                if product and quantity:
+                    if quantity > product.quantity:
+                        form.add_error('quantity', "The entered quantity exceeds the available quantity.")
+                    else:
+                        if str(product.id) in cart:
+                            cart[str(product.id)] += quantity
+                        else:
+                            cart[str(product.id)] = quantity
+            request.session['cart'] = cart
+            return redirect('cart')
 
-            return redirect(reverse('order_detail', kwargs={'order_id': order.pk}))
+        return render(request, 'create_order.html', {'formset': formset})
 
-        return render(request, 'create_order.html', {'form': form, 'formset': formset})
-
-    def add_to_cart(self, request, product_id):
-        product = get_object_or_404(Product, id=product_id)
-        cart = request.session.get('cart', [])
-        cart.append(product_id)
-        request.session['cart'] = cart
-        return redirect('cart')
 
 class OrderDetailView(View):
     def get(self, request, order_id):

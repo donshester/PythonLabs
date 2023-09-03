@@ -8,7 +8,7 @@ from .models import Order, OrderItem
 class OrderForm(forms.ModelForm):
     delivery_date = forms.DateField(
         label='Delivery Date',
-        widget=forms.DateInput(attrs={'type': 'date'})
+        widget=forms.DateInput(attrs={'type': 'date'} )
     )
 
     class Meta:
@@ -18,10 +18,14 @@ class OrderForm(forms.ModelForm):
     def clean_delivery_date(self):
         delivery_date = self.cleaned_data.get('delivery_date')
         if delivery_date:
-            max_delivery_date = date.today() + timedelta(days=365)
+            today = date.today()
+            if delivery_date <= today:
+                raise forms.ValidationError("Delivery date must be in the future.")
+            max_delivery_date = today + timedelta(days=365)
             if delivery_date > max_delivery_date:
                 raise forms.ValidationError("Delivery date must be within 365 days from today.")
         return delivery_date
+
 
 class OrderItemForm(forms.ModelForm):
     class Meta:
